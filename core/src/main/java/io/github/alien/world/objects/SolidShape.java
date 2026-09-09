@@ -192,8 +192,6 @@ public class SolidShape extends WorldObject{
 
                     TextureRegion texture = new TextureRegion(new Texture(FileUtils.find(newName, ".png")));
 
-                    System.out.println(newName + ", " + texture.getTexture().toString() + ", " + name.matches(".*\\d$"));
-
                     if (!hasModelSprite) {
                         for (int i = 0; i < 6; i++) {
                             model.add(i, texture);
