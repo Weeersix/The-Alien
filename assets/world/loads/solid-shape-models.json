@@ -6,6 +6,7 @@
     },
 
     "ruby-block": {
+      "variations-count": 2,
       "side-conditions": [1, 1 ,1, 1, 1, 1]
     }
   }

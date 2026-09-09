@@ -92,11 +92,6 @@ public class Loads {
                         case TEXTURE_SIZE_KEY: properties.put(Keys.TEXTURE_SIZE_KEY.getKey(), object.getInt(i));break;
                         case VARIATIONS_COUNT_KEY: properties.put(Keys.VARIATIONS_COUNT_KEY.getKey(), object.getInt(i));break;
                     }
-                    if(properties.size() < 3) {
-                        if (!properties.containsKey(Keys.MODEL_SIZE_KEY.getKey())) properties.put(Keys.MODEL_SIZE_KEY.getKey(), 1f);
-                        if (!properties.containsKey(Keys.TEXTURE_SIZE_KEY.getKey())) properties.put(Keys.TEXTURE_SIZE_KEY.getKey(), 16);
-                        if (!properties.containsKey(Keys.VARIATIONS_COUNT_KEY.getKey())) properties.put(Keys.VARIATIONS_COUNT_KEY.getKey(), -1);
-                    }
 
                 } catch (IllegalArgumentException e) {
                     if (!object.get(i).name.contains(Keys.ADD_.name())) {
@@ -144,6 +139,12 @@ public class Loads {
                             }
                         }
                     }
+                }
+
+                if(properties.size() < 3) {
+                    if (!properties.containsKey(Keys.MODEL_SIZE_KEY.getKey())) properties.put(Keys.MODEL_SIZE_KEY.getKey(), 1f);
+                    if (!properties.containsKey(Keys.TEXTURE_SIZE_KEY.getKey())) properties.put(Keys.TEXTURE_SIZE_KEY.getKey(), 16);
+                    if (!properties.containsKey(Keys.VARIATIONS_COUNT_KEY.getKey())) properties.put(Keys.VARIATIONS_COUNT_KEY.getKey(), -1);
                 }
             }
         } else {

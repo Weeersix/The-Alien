@@ -128,7 +128,7 @@ public class SolidShape extends WorldObject{
 
             @Override
             public void getModelData(){
-                String newName;
+                String newName = "";
                 try {
                     String fileName = FileUtils.find(name, ".json");
 
@@ -188,7 +188,11 @@ public class SolidShape extends WorldObject{
 
                     model.addAll(Arrays.asList(modelMap[0]).subList(0, 6));
                 } catch (SerializationException e) {
-                    TextureRegion texture = new TextureRegion(new Texture(FileUtils.find(name, ".png")));
+                    if(name.matches(".*\\d$")) newName = name;
+
+                    TextureRegion texture = new TextureRegion(new Texture(FileUtils.find(newName, ".png")));
+
+                    System.out.println(newName + ", " + texture.getTexture().toString() + ", " + name.matches(".*\\d$"));
 
                     if (!hasModelSprite) {
                         for (int i = 0; i < 6; i++) {

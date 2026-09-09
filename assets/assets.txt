@@ -9,11 +9,11 @@ world/models/files/stone-1.json
 world/models/files/stone-2.json
 world/models/files/stone-3.json
 world/models/files/stone-4.json
-world/models/sprites/animated-block/animated-block-model.png
 world/models/sprites/animated-block/core-animod.png
 world/models/sprites/animated-block/gear-model.png
 world/models/sprites/reactor-model.png
-world/models/sprites/ruby-block.png
+world/models/sprites/ruby-block-1.png
+world/models/sprites/ruby-block-2.png
 world/models/sprites/stone-1-model.png
 world/models/sprites/stone-2-model.png
 world/models/sprites/stone-3-model.png
