@@ -1,0 +1,12 @@
+{
+  "solid-shape-models": {
+    "stone": {
+      "variations-count": 4,
+      "side-conditions": [1, 1 ,1, 1, 1, 1]
+    },
+
+    "ruby-block": {
+      "side-conditions": [1, 1 ,1, 1, 1, 1]
+    }
+  }
+}
