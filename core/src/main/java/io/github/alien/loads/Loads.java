@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.SerializationException;
-import io.github.alien.Vars;
+import io.github.alien.Constants;
 import io.github.alien.graphics.g3d.models.Model;
 import io.github.alien.utils.FileUtils;
 import io.github.alien.world.objects.SolidShape;
@@ -61,7 +61,7 @@ public class Loads {
                 }
 
                 if(hasParts && WorldObject.class.isAssignableFrom(objectClass)){
-                    Method attachPart = objectClass.getMethod("attachPart", List.class);
+                    Method attachPart = objectClass.getMethod("attachParts", List.class);
 
                     attachPart.invoke(obj, getParts(object, (Float) properties.get(Keys.MODEL_SIZE_KEY.getKey()), (Integer) properties.get(Keys.TEXTURE_SIZE_KEY.getKey())));
                 }
@@ -225,6 +225,6 @@ public class Loads {
             }
         }
 
-        return (T) Vars.NULL_BLOCK;
+        return (T) Constants.NULL_BLOCK;
     }
 }

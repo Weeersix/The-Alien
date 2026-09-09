@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
-import io.github.alien.Vars;
+import io.github.alien.Constants;
 import io.github.alien.utils.FileUtils;
 
 public class Model {
@@ -70,7 +70,7 @@ public class Model {
     }
 
     public Model asPart(){
-        this.multiplier = Vars.PIXEL_SIZE;
+        this.multiplier = Constants.PIXEL_SIZE;
         this.isPart = true;
 
         return this;
@@ -111,39 +111,39 @@ public class Model {
 
         return this;
     }
-    private void move(){
-        for(Vector3 pos : movements){
-            model.transform.translate(
-                    pos.x * multiplier * movementSpeed,
-                    pos.y * multiplier * movementSpeed,
-                    pos.z * multiplier * movementSpeed
-            );
-        }
-    }
-
-    public Model resize(float startSize, float finalSize, float scaleSpeed, float delta){
-        if(!isPart){
-            throw new IllegalStateException("Model must be a part");
-        }
-
-        float speed = delta * scaleSpeed;
-
-        model.transform.scale(startSize, startSize, startSize);
-
-        if(currentSize <= currentFinalSize) {
-            currentSize += speed;
-        } else if(currentSize > startSize){
-            currentFinalSize = 0;
-            currentSize -= speed;
-
-            if(currentSize <= startSize){
-                currentFinalSize = finalSize;
-            }
-        }
-        model.transform.scale(currentSize, currentSize, currentSize);
-
-        return this;
-    }
+//    private void move(){
+//        for(Vector3 pos : movements){
+//            model.transform.translate(
+//                    pos.x * multiplier * movementSpeed,
+//                    pos.y * multiplier * movementSpeed,
+//                    pos.z * multiplier * movementSpeed
+//            );
+//        }
+//    }
+//
+//    public Model resize(float startSize, float finalSize, float scaleSpeed, float delta){
+//        if(!isPart){
+//            throw new IllegalStateException("Model must be a part");
+//        }
+//
+//        float speed = delta * scaleSpeed;
+//
+//        model.transform.scale(startSize, startSize, startSize);
+//
+//        if(currentSize <= currentFinalSize) {
+//            currentSize += speed;
+//        } else if(currentSize > startSize){
+//            currentFinalSize = 0;
+//            currentSize -= speed;
+//
+//            if(currentSize <= startSize){
+//                currentFinalSize = finalSize;
+//            }
+//        }
+//        model.transform.scale(currentSize, currentSize, currentSize);
+//
+//        return this;
+//    }
 
     public void render(ModelBatch batch) {
         if(!disposed) {

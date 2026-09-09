@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
-import io.github.alien.Vars;
+import io.github.alien.Constants;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,11 +15,11 @@ import java.util.stream.Stream;
 
 public class FileUtils {
     public static String find(String name, String extension) {
-        try(Stream<String> lines = Files.lines(Vars.ASSETS_FILE_PATH)) {
+        try(Stream<String> lines = Files.lines(Constants.ASSETS_FILE_PATH)) {
             return lines
                     .filter(line -> line.contains(name + extension))
                     .findFirst()
-                    .orElse(Vars.NULL);
+                    .orElse(Constants.NULL);
         } catch (IOException e) {
             return null;
         }

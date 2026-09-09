@@ -57,7 +57,7 @@ public class WorldObject {
         return objectPositions;
     }
 
-    public WorldObject attachPart(List<Model> parts){
+    public WorldObject attachParts(List<Model> parts){
         this.parts.addAll(parts);
         return this;
     }
@@ -86,8 +86,6 @@ public class WorldObject {
             model.dispose();
         }
     }
-
-    public void checkAround(){}
 
     public String getName(){
         return this.name;
@@ -158,6 +156,4 @@ public class WorldObject {
 
         return instance;
     }
-
-
 }

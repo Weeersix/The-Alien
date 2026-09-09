@@ -17,9 +17,7 @@ public class GameScreen implements Screen{
     public static Alien alien;
     public InputHandler inputHandler;
 
-    public Stage stage;
-
-    WorldGenerator world;
+    public WorldGenerator world;
 
     public GameScreen(final Alien alien) throws Exception{
         GameScreen.alien = alien;
@@ -30,8 +28,6 @@ public class GameScreen implements Screen{
         world = new WorldGenerator(15, 15, 15);
         world.update();
     }
-
-    // добавить новую анимацию ( зацикленное перемещение частей )
 
     @Override
     public void show() {

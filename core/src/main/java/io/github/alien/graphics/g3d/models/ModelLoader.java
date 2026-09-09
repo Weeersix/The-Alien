@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.SerializationException;
-import io.github.alien.Vars;
+import io.github.alien.Constants;
 import io.github.alien.utils.FileUtils;
 
 import java.util.*;
@@ -29,7 +29,7 @@ public class ModelLoader {
     public ModelLoader(){}
 
     public void load(){
-        hasModelSprite = !Objects.equals(getModelAtlas(), Vars.NULL);
+        hasModelSprite = !Objects.equals(getModelAtlas(), Constants.NULL);
 
         if(hasModelSprite) {
             splitModelTexture();
@@ -39,9 +39,6 @@ public class ModelLoader {
 
     public void setName(String name){
         this.name = name;
-    }
-    public String getName(){
-        return this.name;
     }
 
     public void setPostfix(String postfix){

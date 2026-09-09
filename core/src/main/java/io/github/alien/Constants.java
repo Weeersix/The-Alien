@@ -4,7 +4,7 @@ import io.github.alien.world.objects.SolidShape;
 
 import java.nio.file.Path;
 
-public class Vars {
+public class Constants {
     public static final Path ASSETS_FILE_PATH = Path.of("assets/assets.txt");
 
     public static final int TILE_SIZE = 1;

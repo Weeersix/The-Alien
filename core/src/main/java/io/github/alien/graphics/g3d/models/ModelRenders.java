@@ -13,7 +13,7 @@ import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Null;
-import io.github.alien.Vars;
+import io.github.alien.Constants;
 import io.github.alien.utils.FileUtils;
 
 import java.util.*;
@@ -22,7 +22,6 @@ public class ModelRenders {
     private static final ModelBuilder builder = new ModelBuilder();
 
     private static float modelSizeHalf;
-    private static int[] sideConditions = new int[6];
     private static Vector3 pos = new Vector3(0, 0, 0), alternatePos = new Vector3(0, 0, 0);
 
     public static ModelInstance modelRender(String atlas, @Null Map<Integer, TextureRegion> sides, Map<String, List<TextureRegion>> parts, List<Vector3> typedPositions, List<float[]> customPositions, List<String> partPositionTypes, boolean drawParts, @Null Float modelSize) {
@@ -49,12 +48,6 @@ public class ModelRenders {
                 attributes,
                 material
         );
-
-        if(sideConditions != null){
-            for (int i = 0; i < sideConditions.length; i++) {
-                if(sideConditions[i] == 1) sides.get(i).getTexture().dispose();
-            }
-        }
 
         if(sides != null) {
             /*        X      Y      Z      */
@@ -139,9 +132,9 @@ public class ModelRenders {
                 Vector3 position = typedPositions.get(i);
 
                 typedCoords[i] = new Vector3(
-                        -(modelSizeHalf - position.x * Vars.PIXEL_SIZE * size),
-                        -(modelSizeHalf - position.y * Vars.PIXEL_SIZE * size),
-                        -(modelSizeHalf - position.z * Vars.PIXEL_SIZE * size)
+                        -(modelSizeHalf - position.x * Constants.PIXEL_SIZE * size),
+                        -(modelSizeHalf - position.y * Constants.PIXEL_SIZE * size),
+                        -(modelSizeHalf - position.z * Constants.PIXEL_SIZE * size)
                 );
 
                 altTypedCoords[i] = new Vector3(
@@ -175,7 +168,7 @@ public class ModelRenders {
                 TextureRegion part = parts.get("CUSTOM").get(i);
 
                 for (int j = 0; j < 12; j++) {
-                    coords[j] = customPositions.get(i)[j] * Vars.PIXEL_SIZE;
+                    coords[j] = customPositions.get(i)[j] * Constants.PIXEL_SIZE;
                 }
 
                 mpb.setUVRange(part);
@@ -188,10 +181,6 @@ public class ModelRenders {
                 );
             }
         }
-    }
-
-    public static void updateSolidShape(int[] sideConditions){
-        ModelRenders.sideConditions = sideConditions;
     }
 
     public enum PartParameters {

@@ -2,12 +2,11 @@ package io.github.alien.world.objects;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.SerializationException;
-import io.github.alien.Vars;
+import io.github.alien.Constants;
 import io.github.alien.graphics.g3d.models.Model;
 import io.github.alien.graphics.g3d.models.ModelLoader;
 import io.github.alien.graphics.g3d.models.ModelRenders;
@@ -17,7 +16,6 @@ import java.util.*;
 
 public class SolidShape extends WorldObject{
     public int[] sidesCondition;
-    public int[] objectCondition = new int[6];
 
     public SolidShape(String name, float modelSize, int textureSize, @Null Integer variationsCount, int[] sidesCondition){
         super(name, modelSize, textureSize, variationsCount);
@@ -43,9 +41,9 @@ public class SolidShape extends WorldObject{
         model = new SolidShapeModel(haveVariants ? getVariant(variationsCount) : this.name, position != null ? position : this.position, modelSize, textureSize);
     }
 
-    public void hideSides(int[] sidesCondition){
-        ((SolidShapeModel) model).setSidesCondition(sidesCondition);
-    }
+//    public void hideSides(int[] sidesCondition){
+//        ((SolidShapeModel) model).setSidesCondition(sidesCondition);
+//    }
 
     public int[] getSidesCondition(){
         return this.sidesCondition;
@@ -99,26 +97,13 @@ public class SolidShape extends WorldObject{
             );
         }
 
-        public void setSidesCondition(int[] sidesCondition){
-            this.sidesCondition = sidesCondition;
-        }
+//        public void setSidesCondition(int[] sidesCondition){
+//            this.sidesCondition = sidesCondition;
+//        }
 
         private void getSides() {
             for (int i = 0; i < 6; i++) {
                 sides.put(i, loader.model.get(i));
-            }
-        }
-
-        @Override
-        public void render(ModelBatch batch) {
-            if(!disposed) {
-                if(sidesCondition != null) ModelRenders.updateSolidShape(sidesCondition);
-
-                batch.render(model);
-
-                if(loopedRotation) {
-                    rotate();
-                }
             }
         }
 
@@ -129,7 +114,7 @@ public class SolidShape extends WorldObject{
 
             @Override
             public void load(){
-                hasModelSprite = !Objects.equals(getModelAtlas(), Vars.NULL);
+                hasModelSprite = !Objects.equals(getModelAtlas(), Constants.NULL);
 
                 if(hasModelSprite) {
                     splitModelTexture();
