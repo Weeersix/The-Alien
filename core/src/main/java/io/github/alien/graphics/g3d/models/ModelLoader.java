@@ -102,15 +102,7 @@ public class ModelLoader {
                 }
             }
         } catch (SerializationException e) {
-            TextureRegion texture = new TextureRegion(new Texture(FileUtils.find(name, ".png")));
-
-            if (!hasModelSprite) {
-                for (int i = 0; i < 6; i++) {
-                    model.add(i, texture);
-                }
-            } else {
-                model.addAll(Arrays.asList(modelMap[0]).subList(0, 6));
-            }
+            throw new RuntimeException("The model is empty: " + name + " | Please create a file named: «" + name + ".json" +  "» and define the model parts in it.");
         }
     }
 
