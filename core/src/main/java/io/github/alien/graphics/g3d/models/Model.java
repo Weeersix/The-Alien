@@ -11,7 +11,6 @@ public class Model {
     public String name;
     public Vector3 position;
     private float multiplier = 1;
-    private boolean isPart = false;
     protected boolean drawParts = true;
     protected boolean disposed = false;
 
@@ -71,8 +70,6 @@ public class Model {
 
     public Model asPart(){
         this.multiplier = Constants.PIXEL_SIZE;
-        this.isPart = true;
-
         return this;
     }
 
@@ -149,7 +146,7 @@ public class Model {
         if(!disposed) {
             batch.render(model);
 
-            if(loopedRotation) {
+            if (loopedRotation) {
                 rotate();
             }
         }

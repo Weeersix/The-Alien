@@ -67,6 +67,7 @@ public class WorldObject {
             model.render(batch);
 
             for (Model part : parts) {
+                if(this.deleted) part.dispose();
                 part.render(batch);
             }
         }
@@ -75,11 +76,8 @@ public class WorldObject {
     public void hide(){
         if(!hided) hided = true;
     }
-
     public void delete(){
-        if(!deleted) {
-            deleted = true;
-        }
+        if(!deleted) deleted = true;
     }
     public void dispose(){
         if(deleted) {
