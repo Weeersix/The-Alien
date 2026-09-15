@@ -16,21 +16,14 @@ public class Model {
 
     public Vector3 axis;
     public float angle;
-    public float currentSize;
-    public float currentFinalSize;
-    public Vector3[] movements;
-    public float movementSpeed;
-    public boolean loopedRotation = false, loopedScaling = false, loopedMovement = false;
+    public float scaleSpeed;
+    public boolean loopedRotation = false;
 
     public float modelSize;
     public int textureSize;
 
     public ModelLoader loader;
     public ModelInstance model;
-
-    public Model(String name, Vector3 position){
-        load(name, position);
-    }
 
     public Model(String name, Vector3 position, float modelSize, int textureSize){
         this.modelSize = modelSize;
@@ -93,62 +86,11 @@ public class Model {
         model.transform.rotate(axis, angle * Gdx.graphics.getDeltaTime());
     }
 
-    public Model setMovements(Vector3[] movements, float movementSpeed, boolean looped){
-        this.movements = movements;
-        this.movementSpeed = movementSpeed;
-        this.loopedMovement = looped;
-
-        for(Vector3 pos : movements){
-            model.transform.translate(
-                    pos.x * multiplier * movementSpeed,
-                    pos.y * multiplier * movementSpeed,
-                    pos.z * multiplier * movementSpeed
-            );
-        }
-
-        return this;
-    }
-//    private void move(){
-//        for(Vector3 pos : movements){
-//            model.transform.translate(
-//                    pos.x * multiplier * movementSpeed,
-//                    pos.y * multiplier * movementSpeed,
-//                    pos.z * multiplier * movementSpeed
-//            );
-//        }
-//    }
-//
-//    public Model resize(float startSize, float finalSize, float scaleSpeed, float delta){
-//        if(!isPart){
-//            throw new IllegalStateException("Model must be a part");
-//        }
-//
-//        float speed = delta * scaleSpeed;
-//
-//        model.transform.scale(startSize, startSize, startSize);
-//
-//        if(currentSize <= currentFinalSize) {
-//            currentSize += speed;
-//        } else if(currentSize > startSize){
-//            currentFinalSize = 0;
-//            currentSize -= speed;
-//
-//            if(currentSize <= startSize){
-//                currentFinalSize = finalSize;
-//            }
-//        }
-//        model.transform.scale(currentSize, currentSize, currentSize);
-//
-//        return this;
-//    }
-
     public void render(ModelBatch batch) {
         if(!disposed) {
             batch.render(model);
 
-            if (loopedRotation) {
-                rotate();
-            }
+            if (loopedRotation) rotate();
         }
     }
 

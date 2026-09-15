@@ -141,7 +141,6 @@ public class WorldObject {
                         )
                                 .setPosition(part.position)
                                 .setRotation(part.angle, part.axis, part.loopedRotation)
-                                .setMovements(part.movements, part.movementSpeed, part.loopedMovement)
                 );
             }
         }

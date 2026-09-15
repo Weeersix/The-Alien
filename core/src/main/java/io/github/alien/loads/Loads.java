@@ -157,12 +157,9 @@ public class Loads {
     private static List<Model> getParts(JsonValue object, @Null float modelSize, @Null int textureSize) {
         List<Model> parts = new ArrayList<>();
         Vector3 position = new Vector3(0, 0, 0);
-        Vector3[] movements = new Vector3[]{new Vector3(0, 0, 0)};
         Vector3 axis = new Vector3(0, 0, 0);
         float angle = 0;
-        float startSize = 0, finalSize = 0;
-        float movementSpeed = 5;
-        boolean loopedRotation = false, loopedScaling = false, loopedMovement = false;
+        boolean loopedRotation = false;
 
         for (int i = 0; i < object.size; i++) {
             if(object.get(i).name.contains(Keys.ADD_.name())){
@@ -180,22 +177,6 @@ public class Loads {
                             loopedRotation = obj.getBoolean(4);
                             break;
                         }
-                        case "scaling": {
-                            startSize = obj.getFloat(0);
-                            finalSize = obj.getFloat(1);
-                            loopedScaling = obj.getBoolean(2);
-                            break;
-                        }
-                        case "moving": {
-                            int movementsCount = obj.size / 3;
-                            movements = new Vector3[movementsCount];
-
-                            for (int k = 0; k < movementsCount; k++) {
-                                movements[k] = new Vector3(obj.getFloat(k * 3), obj.getFloat(k * 3 + 1), obj.getFloat(k * 3 + 2));
-                            }
-                            movementSpeed = obj.getInt(obj.size - 2);
-                            loopedMovement = obj.getBoolean(obj.size - 1);
-                        }
                     }
                 }
 
@@ -208,7 +189,6 @@ public class Loads {
                         ).asPart()
                                 .setPosition(position)
                                 .setRotation(angle, axis, loopedRotation)
-                                .setMovements(movements, movementSpeed, loopedMovement)
                 );
             }
         }
