@@ -140,7 +140,8 @@ public class WorldObject {
                                 part.textureSize
                         )
                                 .setPosition(part.position)
-                                .setRotation(part.angle, part.axis, part.loopedRotation)
+                                .setRotation(part.axis, part.angle, part.loopedRotation)
+                                .setRotation(part.axis, part.minAngle, part.maxAngle, part.rotationSpeed)
                 );
             }
         }

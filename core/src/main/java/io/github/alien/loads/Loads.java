@@ -158,7 +158,8 @@ public class Loads {
         List<Model> parts = new ArrayList<>();
         Vector3 position = new Vector3(0, 0, 0);
         Vector3 axis = new Vector3(0, 0, 0);
-        float angle = 0;
+        float angle = 0, startAngle = 0, finalAngle = 0;
+        float rotationSpeed = 0;
         boolean loopedRotation = false;
 
         for (int i = 0; i < object.size; i++) {
@@ -172,9 +173,12 @@ public class Loads {
                             break;
                         }
                         case "rotation": {
-                            angle = obj.getFloat(0);
-                            axis = new Vector3(obj.getFloat(1), obj.getFloat(2), obj.getFloat(3));
-                            loopedRotation = obj.getBoolean(4);
+                            if(obj.get("axis") != null) axis = new Vector3(obj.get("axis").getFloat(0), obj.get("axis").getFloat(1), obj.get("axis").getFloat(2));
+                            if(obj.get("minAngle") != null) startAngle = obj.getFloat("minAngle");
+                            if(obj.get("maxAngle") != null) finalAngle = obj.getFloat("maxAngle");
+                            if(obj.get("angle") != null) angle = obj.getFloat("angle");
+                            if(obj.get("rotationSpeed") != null) rotationSpeed = obj.getFloat("rotationSpeed");
+                            if(obj.get("looped") != null) loopedRotation = obj.getBoolean("looped");
                             break;
                         }
                     }
@@ -188,7 +192,8 @@ public class Loads {
                                 textureSize
                         ).asPart()
                                 .setPosition(position)
-                                .setRotation(angle, axis, loopedRotation)
+                                .setRotation(axis, angle, loopedRotation)
+                                .setRotation(axis, startAngle, finalAngle, rotationSpeed)
                 );
             }
         }

@@ -3,6 +3,7 @@ package io.github.alien.graphics.g3d.models;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import io.github.alien.Constants;
 import io.github.alien.utils.FileUtils;
@@ -15,9 +16,9 @@ public class Model {
     protected boolean disposed = false;
 
     public Vector3 axis;
-    public float angle;
-    public float scaleSpeed;
+    public float minAngle, maxAngle, angle, rotationSpeed;
     public boolean loopedRotation = false;
+    private int direction = 1;
 
     public float modelSize;
     public int textureSize;
@@ -71,9 +72,10 @@ public class Model {
         model.transform.translate(this.position);
         return this;
     }
-    public Model setRotation(float angle, Vector3 axis, boolean looped){
-        this.angle = angle;
+
+    public Model setRotation(Vector3 axis, float angle, boolean looped){
         this.axis = axis;
+        this.angle = angle;
         this.loopedRotation = looped;
 
         if(!looped) {
@@ -82,15 +84,40 @@ public class Model {
 
         return this;
     }
+    public Model setRotation(Vector3 axis, float startAngle, float finalAngle, float rotationSpeed){
+        this.axis = axis;
+        this.minAngle = startAngle;
+        this.maxAngle = finalAngle;
+        this.rotationSpeed = rotationSpeed;
+
+        model.transform.rotate(axis, minAngle);
+
+        return this;
+    }
     protected void rotate(){
-        model.transform.rotate(axis, angle * Gdx.graphics.getDeltaTime());
+        float rotSpeed;
+
+        if(loopedRotation || rotationSpeed != 0) {
+            if(angle != 0){
+                rotSpeed = angle * Gdx.graphics.getDeltaTime();
+                model.transform.rotate(axis, rotSpeed);
+            } else {
+                float currentAngle = model.transform.getRotation(new Quaternion()).getAngle();
+                rotSpeed = rotationSpeed * direction * Gdx.graphics.getDeltaTime();
+
+                if(currentAngle <= minAngle) direction = 1;
+                if(currentAngle >= maxAngle) direction = -1;
+
+                model.transform.rotate(axis, rotSpeed);
+            }
+        }
     }
 
     public void render(ModelBatch batch) {
         if(!disposed) {
             batch.render(model);
 
-            if (loopedRotation) rotate();
+            rotate();
         }
     }
 
