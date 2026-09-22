@@ -3,6 +3,7 @@ package io.github.alien.world.generation;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Vector3;
 import io.github.alien.loads.Loads;
+import io.github.alien.world.objects.EditableShape;
 import io.github.alien.world.objects.SolidShape;
 import io.github.alien.world.objects.WorldObject;
 
@@ -27,7 +28,7 @@ public class WorldGenerator {
         for(int x = 0; x < sizeX; x++) {
             for(int y = 0; y < sizeY; y++) {
                 for(int z = 0; z < sizeZ; z++) {
-                    WorldObject object = Loads.get(SolidShape.class, "stone").createNew(new Vector3(x, y, z));
+                    WorldObject object = Loads.get(EditableShape.class, "reactor").createNew(new Vector3(x, y, z));
 
                     blocks.add(object);
                     world.put(new Vector3(x, y, z), object);

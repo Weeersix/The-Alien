@@ -41,19 +41,8 @@ public class SolidShape extends WorldObject{
         model = new SolidShapeModel(haveVariants ? getVariant(variationsCount) : this.name, position != null ? position : this.position, modelSize, textureSize);
     }
 
-//    public void hideSides(int[] sidesCondition){
-//        ((SolidShapeModel) model).setSidesCondition(sidesCondition);
-//    }
-
-    public int[] getSidesCondition(){
-        return this.sidesCondition;
-    }
-
-
-
     public static class SolidShapeModel extends Model {
         protected String variantName;
-        protected int[] sidesCondition = new int[6];
         private Map<Integer, TextureRegion> sides;
         protected boolean haveVariants = false;
 
@@ -96,10 +85,6 @@ public class SolidShape extends WorldObject{
                     modelSize
             );
         }
-
-//        public void setSidesCondition(int[] sidesCondition){
-//            this.sidesCondition = sidesCondition;
-//        }
 
         private void getSides() {
             for (int i = 0; i < 6; i++) {

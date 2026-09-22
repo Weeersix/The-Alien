@@ -37,10 +37,9 @@ public class Loads {
             HashMap<String, Object> properties = new HashMap<>();
 
             for (int i = 0; i < content.size; i++) {
+                JsonValue object = content.get(i);
                 List<Object> anotherProperties = new ArrayList<>();
                 List<Object> args = new ArrayList<>();
-
-                JsonValue object = content.get(i);
 
                 getProperties(object, properties, anotherProperties);
                 args.add(object.name);
@@ -60,10 +59,11 @@ public class Loads {
                     }
                 }
 
-                if(hasParts && WorldObject.class.isAssignableFrom(objectClass)){
-                    Method attachPart = objectClass.getMethod("attachParts", List.class);
-
-                    attachPart.invoke(obj, getParts(object, (Float) properties.get(Keys.MODEL_SIZE_KEY.getKey()), (Integer) properties.get(Keys.TEXTURE_SIZE_KEY.getKey())));
+                if(WorldObject.class.isAssignableFrom(objectClass)) {
+                    if (hasParts) {
+                        Method attachPart = objectClass.getMethod("attachParts", List.class);
+                        attachPart.invoke(obj, getParts(object, (Float) properties.get(Keys.MODEL_SIZE_KEY.getKey()), (Integer) properties.get(Keys.TEXTURE_SIZE_KEY.getKey())));
+                    }
                 }
             }
         } catch (SerializationException ignored){}
@@ -76,7 +76,7 @@ public class Loads {
             constructor = objectClass.getConstructors()[i];
 
             if(constructor.getParameters()[1].getType() != Vector3.class) {
-                return  constructor;
+                return constructor;
             }
         }
 
@@ -86,52 +86,52 @@ public class Loads {
     private static void getProperties(JsonValue object, HashMap<String, Object> properties, List<Object> anotherProperties){
         if(object.size != 0) {
             for (int i = 0; i < object.size; i++) {
+                JsonValue param = object.get(i);
                 try {
-                    switch (Keys.toKey(object.get(i).name)) {
+                    switch (Keys.toKey(param.name)) {
                         case MODEL_SIZE_KEY: properties.put(Keys.MODEL_SIZE_KEY.getKey(), object.getFloat(i));break;
                         case TEXTURE_SIZE_KEY: properties.put(Keys.TEXTURE_SIZE_KEY.getKey(), object.getInt(i));break;
                         case VARIATIONS_COUNT_KEY: properties.put(Keys.VARIATIONS_COUNT_KEY.getKey(), object.getInt(i));break;
                     }
-
                 } catch (IllegalArgumentException e) {
-                    if (!object.get(i).name.contains(Keys.ADD_.name())) {
-                        if (object.get(i).type() == JsonValue.ValueType.array) {
-                            switch (object.get(i).get(0).type()) {
+                    if (!param.name.contains(Keys.ADD_.name()) && !param.name.contains("add-animation")) {
+                        if (param.type() == JsonValue.ValueType.array) {
+                            switch (param.get(0).type()) {
                                 case longValue: {
-                                    anotherProperties.add(object.get(i).asIntArray());
+                                    anotherProperties.add(param.asIntArray());
                                     break;
                                 }
                                 case doubleValue: {
-                                    anotherProperties.add(object.get(i).asFloatArray());
+                                    anotherProperties.add(param.asFloatArray());
                                     break;
                                 }
                                 case booleanValue: {
-                                    anotherProperties.add(object.get(i).asBooleanArray());
+                                    anotherProperties.add(param.asBooleanArray());
                                     break;
                                 }
                                 case stringValue: {
-                                    anotherProperties.add(object.get(i).asStringArray());
+                                    anotherProperties.add(param.asStringArray());
                                     break;
                                 }
                                 default:
                                     System.out.println("Unknown type of values in the array");
                             }
                         } else {
-                            switch (object.get(i).type()) {
+                            switch (param.type()) {
                                 case longValue: {
-                                    anotherProperties.add(object.get(i).asInt());
+                                    anotherProperties.add(param.asInt());
                                     break;
                                 }
                                 case doubleValue: {
-                                    anotherProperties.add(object.get(i).asFloat());
+                                    anotherProperties.add(param.asFloat());
                                     break;
                                 }
                                 case booleanValue: {
-                                    anotherProperties.add(object.get(i).asBoolean());
+                                    anotherProperties.add(param.asBoolean());
                                     break;
                                 }
                                 case stringValue: {
-                                    anotherProperties.add(object.get(i).asString());
+                                    anotherProperties.add(param.asString());
                                     break;
                                 }
                                 default:

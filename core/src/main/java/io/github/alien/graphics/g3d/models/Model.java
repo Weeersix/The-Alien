@@ -8,12 +8,16 @@ import com.badlogic.gdx.math.Vector3;
 import io.github.alien.Constants;
 import io.github.alien.utils.FileUtils;
 
+import java.util.List;
+import java.util.Map;
+
 public class Model {
     public String name;
     public Vector3 position;
     private float multiplier = 1;
     protected boolean drawParts = true;
     protected boolean disposed = false;
+    public List<Map<String, Object>> animatedParts;
 
     public Vector3 axis;
     public float minAngle, maxAngle, angle, rotationSpeed;
@@ -33,7 +37,7 @@ public class Model {
         load(name, position);
     }
 
-    protected void load(String name, Vector3 position){
+    protected void load(String name, Vector3 position) {
         loader = new ModelLoader();
 
         this.name = name;
@@ -57,7 +61,7 @@ public class Model {
                 modelSize
         );
 
-        if(position != null){
+        if (position != null) {
             model.transform.translate(this.position);
         }
     }
