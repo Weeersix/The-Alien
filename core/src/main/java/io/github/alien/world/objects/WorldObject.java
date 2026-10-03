@@ -36,6 +36,7 @@ public class WorldObject {
 
         allObjects.put(this.position, this);
         objectPositions.add(this.position);
+        update();
     }
 
     protected void load(String name, @Null Vector3 position, float modelSize, int textureSize, @Null Integer variationsCount){
@@ -50,39 +51,23 @@ public class WorldObject {
         model = new Model(haveVariants ? getVariant(variationsCount) : this.name, position != null ? position : this.position, modelSize, textureSize);
     }
 
-    public static Map<Vector3, WorldObject> getAllObjects(){
-        return allObjects;
-    }
-    public static List<Vector3> getObjectPositions(){
-        return objectPositions;
-    }
-
     public WorldObject attachParts(List<Model> parts){
         this.parts.addAll(parts);
         return this;
     }
 
-    public void set(ModelBatch batch){
-        if(!hided) {
-            model.render(batch);
-
-            for (Model part : parts) {
-                if(this.deleted) part.dispose();
-                part.render(batch);
-            }
-        }
-    }
-
     public void hide(){
         if(!hided) hided = true;
     }
-    public void delete(){
-        if(!deleted) deleted = true;
+    public void show(){
+        if(hided) hided = false;
     }
     public void dispose(){
-        if(deleted) {
-            model.dispose();
-        }
+        allObjects.remove(this.position);
+        model.dispose();
+        deleted = true;
+
+        update();
     }
 
     public String getName(){
@@ -99,6 +84,46 @@ public class WorldObject {
 
     protected String getVariant(int variationsCount){
         return getName() + "-" + new Random().nextInt(1, variationsCount + 1);
+    }
+
+
+    protected Vector3[] objectsNearby;
+
+    public void update(){
+        for (int i = 0; i < allObjects.size(); i++) {
+            Vector3 pos = objectPositions.get(i);
+            int objNearbyCount = 0;
+
+            objectsNearby = new Vector3[]{
+                    new Vector3(pos.x, pos.y + 1, pos.z),
+                    new Vector3(pos.x, pos.y - 1, pos.z),
+                    new Vector3(pos.x + 1, pos.y, pos.z),
+                    new Vector3(pos.x - 1, pos.y, pos.z),
+                    new Vector3(pos.x, pos.y, pos.z + 1),
+                    new Vector3(pos.x, pos.y, pos.z - 1)
+            };
+
+            if(allObjects.get(pos) != null){
+                for (Vector3 vector3 : objectsNearby) {
+                    if (allObjects.get(vector3) != null) {
+                        objNearbyCount += 1;
+                    } else objNearbyCount += 0;
+                }
+            }
+
+            if(objNearbyCount == 6) allObjects.get(pos).hide();
+        }
+    }
+
+    public void render(ModelBatch batch){
+        if(!hided) {
+            model.render(batch);
+
+            for (Model part : parts) {
+                if(this.deleted) part.dispose();
+                part.render(batch);
+            }
+        }
     }
 
 

@@ -41,6 +41,50 @@ public class SolidShape extends WorldObject{
         model = new SolidShapeModel(haveVariants ? getVariant(variationsCount) : this.name, position != null ? position : this.position, modelSize, textureSize);
     }
 
+    public void hideSides(long[] sidesCondition){
+        for (int j = 0; j < sidesCondition.length; j++) {
+            model.model.getNode("side-" + j).parts.first().enabled = sidesCondition[j] == 0;
+        }
+    }
+
+    @Override
+    public void update(){
+        for (int i = 0; i < allObjects.size(); i++) {
+            Vector3 pos = objectPositions.get(i);
+            long[] objNearbyCount = new long[6];
+
+            objectsNearby = new Vector3[]{
+                    new Vector3(pos.x, pos.y + 1, pos.z),
+                    new Vector3(pos.x, pos.y - 1, pos.z),
+                    new Vector3(pos.x + 1, pos.y, pos.z),
+                    new Vector3(pos.x - 1, pos.y, pos.z),
+                    new Vector3(pos.x, pos.y, pos.z + 1),
+                    new Vector3(pos.x, pos.y, pos.z - 1)
+            };
+
+            if(allObjects.get(pos) != null){
+                for (int j = 0; j < objectsNearby.length; j++) {
+                    if (allObjects.get(objectsNearby[j]) != null) {
+                        objNearbyCount[j] = 1;
+                    } else objNearbyCount[j] = 0;
+                }
+            }
+
+            long count = Arrays.stream(objNearbyCount).filter(num -> num == 1).count();
+            SolidShape obj = ((SolidShape) allObjects.get(pos));
+            if(count == 6){
+                obj.hide();
+            } else {
+                if(obj != null){
+                    for (int j = 0; j < objNearbyCount.length; j++) {
+                        if(obj.hided) obj.show();
+                    }
+                    ((SolidShape) allObjects.get(pos)).hideSides(objNearbyCount);
+                }
+            }
+        }
+    }
+
     public static class SolidShapeModel extends Model {
         protected String variantName;
         private Map<Integer, TextureRegion> sides;
