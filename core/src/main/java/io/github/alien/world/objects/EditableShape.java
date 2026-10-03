@@ -70,7 +70,7 @@ public class EditableShape extends WorldObject {
                     loader.typedPositions,
                     loader.customPositions,
                     loader.partPositionType,
-                    drawParts,
+                    true,
                     modelSize
             );
         }

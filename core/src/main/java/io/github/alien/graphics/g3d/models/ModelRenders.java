@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
@@ -24,7 +25,16 @@ public class ModelRenders {
     private static float modelSizeHalf;
     private static Vector3 pos = new Vector3(0, 0, 0), alternatePos = new Vector3(0, 0, 0);
 
-    public static ModelInstance modelRender(String atlas, @Null Map<Integer, TextureRegion> sides, Map<String, List<TextureRegion>> parts, List<Vector3> typedPositions, List<float[]> customPositions, List<String> partPositionTypes, boolean drawParts, @Null Float modelSize) {
+    public static ModelInstance modelRender(
+            String atlas,
+            @Null Map<Integer, TextureRegion> sides,
+            Map<String, List<TextureRegion>> parts,
+            List<Vector3> typedPositions,
+            List<float[]> customPositions,
+            List<String> partPositionTypes,
+            boolean drawParts,
+            @Null Float modelSize
+    ){
         ModelRenders.modelSizeHalf = modelSize / 2;
 
         builder.begin();
@@ -42,92 +52,115 @@ public class ModelRenders {
         material.set(new FloatAttribute(FloatAttribute.AlphaTest, 0.1f));
         material.set(new IntAttribute(IntAttribute.CullFace, GL20.GL_NONE));
 
-        MeshPartBuilder mpb = builder.part(
-                atlas,
-                GL20.GL_TRIANGLES,
-                attributes,
-                material
-        );
-
         if(sides != null) {
-            /*        X      Y      Z      */
+            float[][] rs = new float[][]{
+                    {
+                            -modelSizeHalf, modelSizeHalf, modelSizeHalf,
+                             modelSizeHalf, modelSizeHalf, modelSizeHalf,
+                             modelSizeHalf, modelSizeHalf, -modelSizeHalf,
+                            -modelSizeHalf, modelSizeHalf, -modelSizeHalf,
+                             0, 1, 0
+                    },
+                    {
+                            -modelSizeHalf, -modelSizeHalf, -modelSizeHalf,
+                             modelSizeHalf, -modelSizeHalf, -modelSizeHalf,
+                             modelSizeHalf, -modelSizeHalf,  modelSizeHalf,
+                            -modelSizeHalf, -modelSizeHalf,  modelSizeHalf,
+                             0, -1, 0
+                    },
+                    {
+                            modelSizeHalf, -modelSizeHalf,  modelSizeHalf,
+                            modelSizeHalf, -modelSizeHalf, -modelSizeHalf,
+                            modelSizeHalf,  modelSizeHalf, -modelSizeHalf,
+                            modelSizeHalf,  modelSizeHalf,  modelSizeHalf,
+                            1, 0, 0
+                    },
+                    {
+                            -modelSizeHalf, -modelSizeHalf, -modelSizeHalf,
+                            -modelSizeHalf, -modelSizeHalf,  modelSizeHalf,
+                            -modelSizeHalf,  modelSizeHalf,  modelSizeHalf,
+                            -modelSizeHalf,  modelSizeHalf, -modelSizeHalf,
+                            -1, 0, 0
+                    },
+                    {
+                            -modelSizeHalf, -modelSizeHalf, modelSizeHalf,
+                             modelSizeHalf, -modelSizeHalf, modelSizeHalf,
+                             modelSizeHalf,  modelSizeHalf, modelSizeHalf,
+                            -modelSizeHalf,  modelSizeHalf, modelSizeHalf,
+                             0, 0, 1
+                    },
+                    {
+                             modelSizeHalf, -modelSizeHalf, -modelSizeHalf,
+                            -modelSizeHalf, -modelSizeHalf, -modelSizeHalf,
+                            -modelSizeHalf,  modelSizeHalf, -modelSizeHalf,
+                             modelSizeHalf,  modelSizeHalf, -modelSizeHalf,
+                             0, 0, -1
+                    }
+            };
 
-            mpb.setUVRange(sides.get(0));
-            mpb.rect(
-                    -modelSizeHalf, modelSizeHalf,  modelSizeHalf,
-                     modelSizeHalf, modelSizeHalf,  modelSizeHalf,
-                     modelSizeHalf, modelSizeHalf, -modelSizeHalf,
-                    -modelSizeHalf, modelSizeHalf, -modelSizeHalf,
-                    0, 1, 0
-            );
+            for (int i = 0; i < sides.size(); i++) {
+                String id = "side-" + i;
+                float[] rect = rs[i];
 
-            mpb.setUVRange(sides.get(1));
-            mpb.rect(
-                    -modelSizeHalf, -modelSizeHalf, -modelSizeHalf,
-                     modelSizeHalf, -modelSizeHalf, -modelSizeHalf,
-                     modelSizeHalf, -modelSizeHalf,  modelSizeHalf,
-                    -modelSizeHalf, -modelSizeHalf,  modelSizeHalf,
-                    0, -1, 0
-            );
-
-            mpb.setUVRange(sides.get(2));
-            mpb.rect(
-                    modelSizeHalf, -modelSizeHalf,  modelSizeHalf,
-                    modelSizeHalf, -modelSizeHalf, -modelSizeHalf,
-                    modelSizeHalf,  modelSizeHalf, -modelSizeHalf,
-                    modelSizeHalf,  modelSizeHalf,  modelSizeHalf,
-                    1, 0, 0
-            );
-
-            mpb.setUVRange(sides.get(3));
-            mpb.rect(
-                    -modelSizeHalf, -modelSizeHalf, -modelSizeHalf,
-                    -modelSizeHalf, -modelSizeHalf,  modelSizeHalf,
-                    -modelSizeHalf,  modelSizeHalf,  modelSizeHalf,
-                    -modelSizeHalf,  modelSizeHalf, -modelSizeHalf,
-                    -1, 0, 0
-            );
-
-            mpb.setUVRange(sides.get(4));
-            mpb.rect(
-                    -modelSizeHalf, -modelSizeHalf, modelSizeHalf,
-                     modelSizeHalf, -modelSizeHalf, modelSizeHalf,
-                     modelSizeHalf,  modelSizeHalf, modelSizeHalf,
-                    -modelSizeHalf,  modelSizeHalf, modelSizeHalf,
-                    0, 0, 1
-            );
-
-            mpb.setUVRange(sides.get(5));
-            mpb.rect(
-                     modelSizeHalf, -modelSizeHalf, -modelSizeHalf,
-                    -modelSizeHalf, -modelSizeHalf, -modelSizeHalf,
-                    -modelSizeHalf,  modelSizeHalf, -modelSizeHalf,
-                     modelSizeHalf,  modelSizeHalf, -modelSizeHalf,
-                    0, 0, -1
-            );
-
-            if (parts != null && drawParts) {
-                partsRender(mpb, parts, typedPositions, customPositions, partPositionTypes, modelSize);
+                Node node = builder.node(); node.id = id;
+                MeshPartBuilder mpb = builder.part(
+                        id,
+                        GL20.GL_TRIANGLES,
+                        attributes,
+                        material
+                );
+                mpb.setUVRange(sides.get(i));
+                mpb.rect(
+                        rect[0 ], rect[1 ],  rect[2 ],
+                        rect[3 ], rect[4 ],  rect[5 ],
+                        rect[6 ], rect[7 ],  rect[8 ],
+                        rect[9 ], rect[10],  rect[11],
+                        rect[12], rect[13],  rect[14]
+                );
             }
-        } else {
-            partsRender(mpb, parts, typedPositions, customPositions, partPositionTypes, modelSize);
+        }
+
+        if(drawParts){
+            partsRender(
+                    attributes, material,
+                    parts,
+                    typedPositions,
+                    customPositions,
+                    partPositionTypes,
+                    modelSize
+            );
         }
 
         return new ModelInstance(builder.end());
     }
 
     private static float getPositionMultiply(float num){
-        return (-modelSizeHalf - num) * 2;
+        return -(modelSizeHalf + num) * 2;
     }
 
-    private static void partsRender(MeshPartBuilder mpb, Map<String, List<TextureRegion>> parts, List<Vector3> typedPositions, List<float[]> customPositions, List<String> partPositionTypes, float size) {
+    private static void partsRender(
+            long attributes, Material material,
+            Map<String, List<TextureRegion>> parts,
+            List<Vector3> typedPositions,
+            List<float[]> customPositions,
+            List<String> partPositionTypes,
+            float size
+    ){
         Vector3[] typedCoords = new Vector3[parts.get("TYPED").size()], altTypedCoords = new Vector3[parts.get("TYPED").size()];
-
         float[] coords = new float[12];
 
         if(!typedPositions.isEmpty()) {
             for (int i = 0; i < typedPositions.size(); i++) {
                 TextureRegion part = parts.get("TYPED").get(i);
+                String id = "part-" + i;
+
+                Node node = builder.node(); node.id = id;
+                MeshPartBuilder mpb = builder.part(
+                        id,
+                        GL20.GL_TRIANGLES,
+                        attributes,
+                        material
+                );
 
                 Vector3 position = typedPositions.get(i);
 
@@ -143,6 +176,8 @@ public class ModelRenders {
                         typedCoords[i].z + getPositionMultiply(typedCoords[i].z)
                 );
 
+                System.out.println(partPositionTypes.get(i));
+
                 for (PartParameters param : PartParameters.values()) {
                     if (param.name().equals(partPositionTypes.get(i))) {
                         pos = typedCoords[i];
@@ -152,9 +187,9 @@ public class ModelRenders {
 
                         mpb.setUVRange(part);
                         mpb.rect(
-                                rect[0], rect[1], rect[2],
-                                rect[3], rect[4], rect[5],
-                                rect[6], rect[7], rect[8],
+                                rect[0], rect[ 1], rect[ 2],
+                                rect[3], rect[ 4], rect[ 5],
+                                rect[6], rect[ 7], rect[ 8],
                                 rect[9], rect[10], rect[11],
                                 0, 0, 0
                         );
@@ -166,16 +201,25 @@ public class ModelRenders {
         if(!customPositions.isEmpty()) {
             for (int i = 0; i < customPositions.size(); i++) {
                 TextureRegion part = parts.get("CUSTOM").get(i);
+                String id = "part-" + i;
 
                 for (int j = 0; j < 12; j++) {
                     coords[j] = customPositions.get(i)[j] * Constants.PIXEL_SIZE;
                 }
 
+                Node node = builder.node(); node.id = id;
+                MeshPartBuilder mpb = builder.part(
+                        id,
+                        GL20.GL_TRIANGLES,
+                        attributes,
+                        material
+                );
+
                 mpb.setUVRange(part);
                 mpb.rect(
-                        coords[0], coords[1 ], coords[2 ],
-                        coords[3], coords[4 ], coords[5 ],
-                        coords[6], coords[7 ], coords[8 ],
+                        coords[0], coords[ 1], coords[ 2],
+                        coords[3], coords[ 4], coords[ 5],
+                        coords[6], coords[ 7], coords[ 8],
                         coords[9], coords[10], coords[11],
                         0, 0, 0
                 );
