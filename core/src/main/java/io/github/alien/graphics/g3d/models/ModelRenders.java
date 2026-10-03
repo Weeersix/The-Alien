@@ -176,8 +176,6 @@ public class ModelRenders {
                         typedCoords[i].z + getPositionMultiply(typedCoords[i].z)
                 );
 
-                System.out.println(partPositionTypes.get(i));
-
                 for (PartParameters param : PartParameters.values()) {
                     if (param.name().equals(partPositionTypes.get(i))) {
                         pos = typedCoords[i];
