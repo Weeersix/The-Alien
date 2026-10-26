@@ -1,6 +1,5 @@
 package io.github.alien.graphics.g3d.models;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.JsonValue;
@@ -17,14 +16,14 @@ public class ModelLoader {
     protected TextureRegion[][] modelMap;
     public boolean hasModelSprite;
 
-    public List<int[]> texturePositions = new ArrayList<>();
     public List<String> partPositionType = new ArrayList<>();
     public List<Vector3> typedPositions = new ArrayList<>();
     public List<float[]> customPositions = new ArrayList<>();
 
-    public Map<String, List<TextureRegion>> parts = new HashMap<>();
+    public Map<String, List<TextureRegion[]>> parts = new HashMap<>();
+    public List<float[]> animatedPartsCoord = new ArrayList<>();
 
-    public List<TextureRegion> model = new ArrayList<>();
+    public List<TextureRegion[]> model = new ArrayList<>();
 
     public ModelLoader(){}
 
@@ -62,8 +61,6 @@ public class ModelLoader {
             for (int i = 0; i < partsData.size; i++) {
                 JsonValue part = partsData.get(i);
 
-                int[] texturePoses = new int[2];
-
                 if (part.size <= 6) {
                     int x = 0, y = 0, z = 0;
 
@@ -77,33 +74,42 @@ public class ModelLoader {
                         }
                     }
 
-                    for (int j = 0; j < 2; j++) {
-                        texturePoses[j] = part.getInt(j);
-                    }
-                    texturePositions.add(texturePoses);
                     if (part.get(2) != null) {
                         partPositionType.add(part.getString(2));
                     } else System.out.println("Set the position type in the model part: " + this.name);
                     typedPositions.add(new Vector3(x, y, z));
 
-                    model.add(modelMap[texturePositions.get(i)[0]][texturePositions.get(i)[1]]);
-                    parts.get("TYPED").add(modelMap[texturePositions.get(i)[0]][texturePositions.get(i)[1]]);
+                    getPartData(part, "TYPED");
                 } else  {
                     float[] rect = new float[12];
 
-                    for (int j = 0; j < 2; j++) texturePoses[j] = part.getInt(j);
-                    for (int j = 0; j < 12; j++) rect[j] = part.getFloat(j + 2);
-
+                    for (int j = 0; j < 12; j++) rect[j] = part.getFloat(j + (!part.get(0).isArray() ? 2 : 1)) * Constants.PIXEL_SIZE * 2;
                     customPositions.add(rect);
-                    texturePositions.add(texturePoses);
 
-                    model.add(modelMap[texturePositions.get(i)[0]][texturePositions.get(i)[1]]);
-                    parts.get("CUSTOM").add(modelMap[texturePositions.get(i)[0]][texturePositions.get(i)[1]]);
+                    getPartData(part, "CUSTOM");
                 }
             }
         } catch (SerializationException e) {
             throw new RuntimeException("The model is empty: " + name + " | Please create a file named: «" + name + ".json" +  "» and define the model parts in it.");
         }
+    }
+
+    public void getPartData(JsonValue part, String partType){
+        int texturesCount = part.get(0).size;
+        TextureRegion[] partData = new TextureRegion[part.get(0).isLong() ? 1 : texturesCount / 2];
+
+        if(part.get(0).isLong()){
+            partData[0] = modelMap[part.getInt(0)][part.getInt(1)];
+        } else {
+            for (int i = 0; i < texturesCount / 2; i++) {
+                partData[i] = modelMap[part.get(0).getInt(i * 2)][part.get(0).getInt(i * 2 + 1)];
+
+                animatedPartsCoord.add(new float[]{part.get(0).getInt(i * 2), part.get(0).getInt(i * 2 + 1)});
+            }
+        }
+
+        model.add(partData);
+        parts.get(partType).add(partData);
     }
 
     public String getModelAtlas(){
@@ -121,7 +127,6 @@ public class ModelLoader {
     public void unload(){
         parts.clear();
         model.clear();
-        texturePositions.clear();
         partPositionType.clear();
         typedPositions.clear();
         customPositions.clear();

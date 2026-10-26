@@ -42,10 +42,11 @@ public class Loads {
                 List<Object> args = new ArrayList<>();
 
                 getProperties(object, properties, anotherProperties);
+
                 args.add(object.name);
-                for (int j = 0; j < 3; j++) {
-                    args.add(properties.get(Keys.values()[j].getKey()));
-                }
+                args.add(properties.get("model-size"));
+                args.add(properties.get("texture-size"));
+                args.add(properties.get("variations-count"));
                 args.addAll(anotherProperties);
 
                 T obj = constructor.newInstance(args.toArray());
@@ -53,7 +54,7 @@ public class Loads {
 
                 boolean hasParts = false;
                 for (JsonValue v : object) {
-                    if (v.name.contains(Keys.ADD_.name())) {
+                    if (v.name.contains("ADD_")) {
                         hasParts = true;
                         break;
                     }
@@ -62,7 +63,7 @@ public class Loads {
                 if(WorldObject.class.isAssignableFrom(objectClass)) {
                     if (hasParts) {
                         Method attachPart = objectClass.getMethod("attachParts", List.class);
-                        attachPart.invoke(obj, getParts(object, (Float) properties.get(Keys.MODEL_SIZE_KEY.getKey()), (Integer) properties.get(Keys.TEXTURE_SIZE_KEY.getKey())));
+                        attachPart.invoke(obj, getParts(object, (Float) properties.get("model-size"), (Integer) properties.get("texture-size")));
                     }
                 }
             }
@@ -87,70 +88,72 @@ public class Loads {
         if(object.size != 0) {
             for (int i = 0; i < object.size; i++) {
                 JsonValue param = object.get(i);
-                try {
-                    switch (Keys.toKey(param.name)) {
-                        case MODEL_SIZE_KEY: properties.put(Keys.MODEL_SIZE_KEY.getKey(), object.getFloat(i));break;
-                        case TEXTURE_SIZE_KEY: properties.put(Keys.TEXTURE_SIZE_KEY.getKey(), object.getInt(i));break;
-                        case VARIATIONS_COUNT_KEY: properties.put(Keys.VARIATIONS_COUNT_KEY.getKey(), object.getInt(i));break;
-                    }
-                } catch (IllegalArgumentException e) {
-                    if (!param.name.contains(Keys.ADD_.name()) && !param.name.contains("add-animation")) {
-                        if (param.type() == JsonValue.ValueType.array) {
-                            switch (param.get(0).type()) {
-                                case longValue: {
-                                    anotherProperties.add(param.asIntArray());
-                                    break;
-                                }
-                                case doubleValue: {
-                                    anotherProperties.add(param.asFloatArray());
-                                    break;
-                                }
-                                case booleanValue: {
-                                    anotherProperties.add(param.asBooleanArray());
-                                    break;
-                                }
-                                case stringValue: {
-                                    anotherProperties.add(param.asStringArray());
-                                    break;
-                                }
-                                default:
-                                    System.out.println("Unknown type of values in the array");
+
+                switch (param.name) {
+                    case "model-size": properties.put("model-size", object.getFloat(i));break;
+                    case "texture-size": properties.put("texture-size", object.getInt(i));break;
+                    case "variations-count": properties.put("variations-count", object.getInt(i));break;
+                }
+                if (!param.name.equals("model-size") &&
+                        !param.name.equals("texture-size") &&
+                        !param.name.equals("variations-count") &&
+                        !param.name.contains("ADD_"))
+                {
+                    if (param.type() == JsonValue.ValueType.array) {
+                        switch (param.get(0).type()) {
+                            case longValue: {
+                                anotherProperties.add(param.asIntArray());
+                                break;
                             }
-                        } else {
-                            switch (param.type()) {
-                                case longValue: {
-                                    anotherProperties.add(param.asInt());
-                                    break;
-                                }
-                                case doubleValue: {
-                                    anotherProperties.add(param.asFloat());
-                                    break;
-                                }
-                                case booleanValue: {
-                                    anotherProperties.add(param.asBoolean());
-                                    break;
-                                }
-                                case stringValue: {
-                                    anotherProperties.add(param.asString());
-                                    break;
-                                }
-                                default:
-                                    System.out.println("Unknown value type");
+                            case doubleValue: {
+                                anotherProperties.add(param.asFloatArray());
+                                break;
                             }
+                            case booleanValue: {
+                                anotherProperties.add(param.asBooleanArray());
+                                break;
+                            }
+                            case stringValue: {
+                                anotherProperties.add(param.asStringArray());
+                                break;
+                            }
+                            default:
+                                System.out.println("Unknown type of values in the array");
+                        }
+                    } else {
+                        switch (param.type()) {
+                            case longValue: {
+                                anotherProperties.add(param.asInt());
+                                break;
+                            }
+                            case doubleValue: {
+                                anotherProperties.add(param.asFloat());
+                                break;
+                            }
+                            case booleanValue: {
+                                anotherProperties.add(param.asBoolean());
+                                break;
+                            }
+                            case stringValue: {
+                                anotherProperties.add(param.asString());
+                                break;
+                            }
+                            default:
+                                System.out.println("Unknown value type");
                         }
                     }
                 }
 
                 if(properties.size() < 3) {
-                    if (!properties.containsKey(Keys.MODEL_SIZE_KEY.getKey())) properties.put(Keys.MODEL_SIZE_KEY.getKey(), 1f);
-                    if (!properties.containsKey(Keys.TEXTURE_SIZE_KEY.getKey())) properties.put(Keys.TEXTURE_SIZE_KEY.getKey(), 16);
-                    if (!properties.containsKey(Keys.VARIATIONS_COUNT_KEY.getKey())) properties.put(Keys.VARIATIONS_COUNT_KEY.getKey(), -1);
+                    if (!properties.containsKey("model-size")) properties.put("model-size", 1f);
+                    if (!properties.containsKey("texture-size")) properties.put("texture-size", 16);
+                    if (!properties.containsKey("variations-count")) properties.put("variations-count", -1);
                 }
             }
         } else {
-            properties.put(Keys.MODEL_SIZE_KEY.getKey(), 1f);
-            properties.put(Keys.TEXTURE_SIZE_KEY.getKey(), 16);
-            properties.put(Keys.VARIATIONS_COUNT_KEY.getKey(), -1);
+            properties.put("model-size", 1f);
+            properties.put("texture-size", 16);
+            properties.put("variations-count", -1);
         }
     }
 
@@ -163,7 +166,7 @@ public class Loads {
         boolean loopedRotation = false;
 
         for (int i = 0; i < object.size; i++) {
-            if(object.get(i).name.contains(Keys.ADD_.name())){
+            if(object.get(i).name.contains("ADD_")){
                 for (int j = 0; j < object.get(i).size; j++) {
                     JsonValue obj = object.get(i).get(j);
 
@@ -186,7 +189,7 @@ public class Loads {
 
                 parts.add(
                         new Model(
-                                object.get(i).name.replaceAll(Keys.ADD_.name(), ""),
+                                object.get(i).name.replaceAll("ADD_", ""),
                                 new Vector3(0, 0, 0),
                                 modelSize,
                                 textureSize

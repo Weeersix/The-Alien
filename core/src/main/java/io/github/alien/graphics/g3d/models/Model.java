@@ -1,18 +1,30 @@
 package io.github.alien.graphics.g3d.models;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import io.github.alien.Constants;
 import io.github.alien.utils.FileUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Model {
     public String name;
     public Vector3 position;
     private float multiplier = 1;
     protected boolean disposed = false;
+    protected String modelAtlas;
 
     public Vector3 axis;
     public float minAngle, maxAngle, angle, rotationSpeed;
@@ -22,6 +34,8 @@ public class Model {
     public float modelSize;
     public int textureSize;
 
+    public List<Part<Model>> parts = new ArrayList<>();
+    protected final ModelBuilder builder = new ModelBuilder();
     public ModelLoader loader;
     public ModelInstance model;
 
@@ -34,6 +48,7 @@ public class Model {
 
     protected void load(String name, Vector3 position) {
         loader = new ModelLoader();
+        builder.begin();
 
         this.name = name;
         this.position = position;
@@ -43,26 +58,58 @@ public class Model {
         loader.setTextureSize(textureSize);
         loader.load();
 
-        model = ModelRenders.modelRender(
-                loader.hasModelSprite ?
-                        FileUtils.find(name + loader.postfix, ".png") :
-                        FileUtils.find(name, ".png"),
-                null,
-                loader.parts,
-                loader.typedPositions,
-                loader.customPositions,
-                loader.partPositionType,
-                true,
-                modelSize
-        );
+        modelAtlas = loader.hasModelSprite ?
+                FileUtils.find(name + loader.postfix, ".png") :
+                FileUtils.find(name, ".png");
+
+        for (int i = 0; i < loader.model.size(); i++) {
+            String id = modelAtlas + "-" + i;
+            float[] rect = loader.typedPositions.isEmpty() ?
+                    loader.customPositions.get(i) :
+                    Part.Shape.getRect(
+                            loader.typedPositions.get(i),
+                            loader.partPositionType.get(i),
+                            modelSize
+                    );
+
+            this.parts.add(new Part<>(
+                    id,
+                    this,
+                    builder,
+                    loader.model.get(i),
+                    rect
+            ));
+        }
+
+        model = new ModelInstance(builder.end());
+
         if (position != null) {
             model.transform.translate(this.position);
         }
+        model.transform.scale(modelSize, modelSize, modelSize);
+    }
+
+    public void setPartSettings(Part<?> part){
+        part.attribute =
+                VertexAttributes.Usage.Position
+                        | VertexAttributes.Usage.Normal
+                        | VertexAttributes.Usage.TextureCoordinates;
+        part.material = new Material(
+                part.id + "-material",
+                TextureAttribute.createDiffuse(FileUtils.textureCache(modelAtlas)),
+                new BlendingAttribute(GL20.GL_ONE_MINUS_SRC_ALPHA)
+        );
+        part.material.set(new FloatAttribute(FloatAttribute.AlphaTest, 0.1f));
+        part.material.set(new IntAttribute(IntAttribute.CullFace, GL20.GL_NONE));
     }
 
     public void render(ModelBatch batch) {
         if(!disposed) {
             batch.render(model);
+
+            for (Part<Model> part : parts){
+                part.update();
+            }
         }
     }
 

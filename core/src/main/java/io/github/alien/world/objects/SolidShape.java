@@ -2,6 +2,7 @@ package io.github.alien.world.objects;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Null;
@@ -9,7 +10,7 @@ import com.badlogic.gdx.utils.SerializationException;
 import io.github.alien.Constants;
 import io.github.alien.graphics.g3d.models.Model;
 import io.github.alien.graphics.g3d.models.ModelLoader;
-import io.github.alien.graphics.g3d.models.ModelRenders;
+import io.github.alien.graphics.g3d.models.Part;
 import io.github.alien.utils.FileUtils;
 
 import java.util.*;
@@ -20,7 +21,7 @@ public class SolidShape extends WorldObject{
     public SolidShape(String name, float modelSize, int textureSize, @Null Integer variationsCount, int[] sidesCondition){
         super(name, modelSize, textureSize, variationsCount);
         this.sidesCondition = sidesCondition;
-        reload(SolidShape.class, (Object) sidesCondition);
+        adjust(SolidShape.class, (Object) sidesCondition);
     }
 
     public SolidShape(String name, Vector3 position, float modelSize, int textureSize, @Null Integer variationsCount, List<Model> parts, int[] sidesCondition){
@@ -38,14 +39,22 @@ public class SolidShape extends WorldObject{
 
         canMove = false;
         this.name = name;
-        model = new SolidShapeModel(haveVariants ? getVariant(variationsCount) : this.name, position != null ? position : this.position, modelSize, textureSize);
+        model = new SolidShapeModel(
+                haveVariants ? this.name + "-" + new Random().nextInt(1, variationsCount + 1) : this.name,
+                position != null ? position : this.position,
+                modelSize,
+                textureSize
+        );
     }
 
-    public void hideSides(long[] sidesCondition){
-        for (int j = 0; j < sidesCondition.length; j++) {
-            model.model.getNode("side-" + j).parts.first().enabled = sidesCondition[j] == 0;
+
+    public void hideSides(long[] sideProperties){
+        for (int i = 0; i < sideProperties.length; i++) {
+            model.parts.get(i).setVisibility(sideProperties[i] != 1);
         }
     }
+
+    protected Vector3[] objectsNearby;
 
     @Override
     public void update(){
@@ -87,7 +96,6 @@ public class SolidShape extends WorldObject{
 
     public static class SolidShapeModel extends Model {
         protected String variantName;
-        private Map<Integer, TextureRegion> sides;
         protected boolean haveVariants = false;
 
         public SolidShapeModel(String blockName, Vector3 blockPosition, float modelSize, int textureSize){
@@ -97,7 +105,7 @@ public class SolidShape extends WorldObject{
         @Override
         protected void load(String name, Vector3 position){
             loader = new SolidShapeModelLoader();
-            sides = new HashMap<>();
+            builder.begin();
 
             haveVariants = name.matches(".*\\d$");
 
@@ -114,46 +122,89 @@ public class SolidShape extends WorldObject{
             loader.setTextureSize(textureSize);
             loader.load();
 
-            getSides();
+            modelAtlas = loader.hasModelSprite ?
+                    FileUtils.find(name + loader.postfix, ".png") :
+                    FileUtils.find(name, ".png");
 
-            model = ModelRenders.modelRender(
-                    loader.hasModelSprite ?
-                            FileUtils.find((!haveVariants ? name : variantName) + loader.postfix, ".png") :
-                            FileUtils.find(!haveVariants ? name : variantName, ".png"),
-                    sides,
-                    loader.parts,
-                    loader.typedPositions,
-                    loader.customPositions,
-                    loader.partPositionType,
-                    true,
-                    modelSize
-            );
+            for (int i = 0; i < loader.model.size(); i++) {
+                String id;
+                float[] rect;
+
+                if(i >= 6) {
+                    rect = loader.typedPositions.isEmpty() ?
+                            loader.customPositions.get(i) :
+                            Part.Shape.getRect(
+                                    loader.typedPositions.get(i - 6),
+                                    loader.partPositionType.get(i - 6),
+                                    modelSize
+                            );
+
+                    id = modelAtlas + "-" + i;
+                } else{
+                    rect = getRects()[i];
+                    id = modelAtlas + "-side-" + i;
+                }
+
+                this.parts.add(new Part<>(
+                        id,
+                        this,
+                        builder,
+                        loader.model.get(i),
+                        rect
+                ));
+            }
+
+            model = new ModelInstance(builder.end());
+            if (position != null) {
+                model.transform.translate(this.position);
+            }
         }
 
-        private void getSides() {
-            for (int i = 0; i < 6; i++) {
-                sides.put(i, loader.model.get(i));
-            }
+        private float[][] getRects() {
+            return new float[][]{
+                    {
+                            -modelSize, modelSize,  modelSize,
+                             modelSize, modelSize,  modelSize,
+                             modelSize, modelSize, -modelSize,
+                            -modelSize, modelSize, -modelSize
+                    },
+                    {
+                            -modelSize, -modelSize, -modelSize,
+                             modelSize, -modelSize, -modelSize,
+                             modelSize, -modelSize,  modelSize,
+                            -modelSize, -modelSize,  modelSize
+                    },
+                    {
+                            modelSize, -modelSize,  modelSize,
+                            modelSize, -modelSize, -modelSize,
+                            modelSize,  modelSize, -modelSize,
+                            modelSize,  modelSize,  modelSize
+                    },
+                    {
+                            -modelSize, -modelSize, -modelSize,
+                            -modelSize, -modelSize,  modelSize,
+                            -modelSize,  modelSize,  modelSize,
+                            -modelSize,  modelSize, -modelSize
+                    },
+                    {
+                            -modelSize, -modelSize, modelSize,
+                             modelSize, -modelSize, modelSize,
+                             modelSize,  modelSize, modelSize,
+                            -modelSize,  modelSize, modelSize
+                    },
+                    {
+                             modelSize, -modelSize, -modelSize,
+                            -modelSize, -modelSize, -modelSize,
+                            -modelSize,  modelSize, -modelSize,
+                             modelSize,  modelSize, -modelSize
+                    }
+            };
         }
 
 
 
         private static class SolidShapeModelLoader extends ModelLoader {
             public SolidShapeModelLoader(){}
-
-            @Override
-            public void load(){
-                hasModelSprite = !Objects.equals(getModelAtlas(), Constants.NULL);
-
-                if(hasModelSprite) {
-                    splitModelTexture();
-                }
-
-                getModelData();
-                if(hasModelSprite) {
-                    getParts();
-                }
-            }
 
             @Override
             public void getModelData(){
@@ -173,10 +224,12 @@ public class SolidShape extends WorldObject{
                     JsonValue partsData = FileUtils.readValue(newName, "parts");
                     String[] coord = new String[partsData.size];
 
+                    for (int i = 0; i < 6; i++) {
+                        model.add(new TextureRegion[]{modelMap[0][i]});
+                    }
+
                     for (int i = 0; i < partsData.size; i++) {
                         JsonValue part = partsData.get(i);
-
-                        int[] texturePoses = new int[2];
 
                         if (part.size <= 6) {
                             int x = 0, y = 0, z = 0;
@@ -191,31 +244,21 @@ public class SolidShape extends WorldObject{
                                 }
                             }
 
-                            for (int j = 0; j < 2; j++) {
-                                texturePoses[j] = part.getInt(j);
-                            }
-                            texturePositions.add(texturePoses);
                             if (part.get(2) != null) {
                                 partPositionType.add(part.getString(2));
                             } else System.out.println("Set the position type in the model part: " + this.name);
                             typedPositions.add(new Vector3(x, y, z));
 
-                            parts.get("TYPED").add(modelMap[texturePositions.get(i)[0]][texturePositions.get(i)[1]]);
+                            getPartData(part, "TYPED");
                         } else {
                             float[] rect = new float[12];
 
-                            for (int j = 0; j < 2; j++) texturePoses[j] = part.getInt(j);
                             for (int j = 0; j < 12; j++) rect[j] = part.getFloat(j + 2);
-
                             customPositions.add(rect);
-                            texturePositions.add(texturePoses);
 
-                            model.add(modelMap[texturePositions.get(i)[0]][texturePositions.get(i)[1]]);
-                            parts.get("CUSTOM").add(modelMap[texturePositions.get(i)[0]][texturePositions.get(i)[1]]);
+                            getPartData(part, "CUSTOM");
                         }
                     }
-
-                    model.addAll(Arrays.asList(modelMap[0]).subList(0, 6));
                 } catch (SerializationException e) {
                     if(name.matches(".*\\d$")) newName = name;
 
@@ -223,17 +266,13 @@ public class SolidShape extends WorldObject{
 
                     if (!hasModelSprite) {
                         for (int i = 0; i < 6; i++) {
-                            model.add(i, texture);
+                            model.add(i, new TextureRegion[]{texture});
                         }
                     } else {
-                        model.addAll(Arrays.asList(modelMap[0]).subList(0, 6));
+                        for (int i = 0; i < 6; i++) {
+                            model.add(new TextureRegion[]{modelMap[0][i]});
+                        }
                     }
-                }
-            }
-
-            private void getParts() {
-                for (int[] texturePosition : texturePositions) {
-                    model.add(modelMap[texturePosition[0]][texturePosition[1]]);
                 }
             }
         }

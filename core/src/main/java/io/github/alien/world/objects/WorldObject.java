@@ -48,7 +48,12 @@ public class WorldObject {
 
         this.name = name;
         canMove = false;
-        model = new Model(haveVariants ? getVariant(variationsCount) : this.name, position != null ? position : this.position, modelSize, textureSize);
+        model = new Model(
+                haveVariants ? this.name + "-" + new Random().nextInt(1, variationsCount + 1) : this.name,
+                position != null ? position : this.position,
+                modelSize,
+                textureSize
+        );
     }
 
     public WorldObject attachParts(List<Model> parts){
@@ -56,64 +61,9 @@ public class WorldObject {
         return this;
     }
 
-    public void hide(){
-        if(!hided) hided = true;
-    }
-    public void show(){
-        if(hided) hided = false;
-    }
-    public void dispose(){
-        allObjects.remove(this.position);
-        model.dispose();
-        deleted = true;
+    public void setPartsSettings(){}
 
-        update();
-    }
-
-    public String getName(){
-        return this.name;
-    }
-
-    public float getModelSize(){
-        return this.modelSize;
-    }
-
-    public Vector3 getPosition(){
-        return this.position;
-    }
-
-    protected String getVariant(int variationsCount){
-        return getName() + "-" + new Random().nextInt(1, variationsCount + 1);
-    }
-
-
-    protected Vector3[] objectsNearby;
-
-    public void update(){
-        for (int i = 0; i < allObjects.size(); i++) {
-            Vector3 pos = objectPositions.get(i);
-            int objNearbyCount = 0;
-
-            objectsNearby = new Vector3[]{
-                    new Vector3(pos.x, pos.y + 1, pos.z),
-                    new Vector3(pos.x, pos.y - 1, pos.z),
-                    new Vector3(pos.x + 1, pos.y, pos.z),
-                    new Vector3(pos.x - 1, pos.y, pos.z),
-                    new Vector3(pos.x, pos.y, pos.z + 1),
-                    new Vector3(pos.x, pos.y, pos.z - 1)
-            };
-
-            if(allObjects.get(pos) != null){
-                for (Vector3 vector3 : objectsNearby) {
-                    if (allObjects.get(vector3) != null) {
-                        objNearbyCount += 1;
-                    } else objNearbyCount += 0;
-                }
-            }
-
-            if(objNearbyCount == 6) allObjects.get(pos).hide();
-        }
-    }
+    public void update(){}
 
     public void render(ModelBatch batch){
         if(!hided) {
@@ -130,7 +80,7 @@ public class WorldObject {
     protected Constructor<?> constructor;
     protected List<Object> properties = new ArrayList<>();
 
-    public void reload(Class<?> clazz, Object... newParameters) {
+    public void adjust(Class<?> clazz, Object... newParameters) {
         Constructor<?> currentConstructor;
         for (int i = 0; i < clazz.getConstructors().length; i++) {
             currentConstructor = clazz.getConstructors()[i];
@@ -178,5 +128,19 @@ public class WorldObject {
         properties.remove(1);
 
         return instance;
+    }
+
+    public void hide(){
+        if(!hided) hided = true;
+    }
+    public void show(){
+        if(hided) hided = false;
+    }
+    public void dispose(){
+        allObjects.remove(this.position);
+        model.dispose();
+        deleted = true;
+
+        update();
     }
 }
