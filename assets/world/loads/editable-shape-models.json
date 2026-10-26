@@ -1,5 +1,16 @@
 {
   "editable-shape-models": {
-    "reactor": {}
+    "reactor": {
+      "ADD_gear": {
+        "position": [0, 10, 0],
+        "rotation": {
+          "axis": [0, 1, 0],
+          "minAngle": 10,
+          "maxAngle": 45,
+          "rotationSpeed": 20,
+          "looped": true
+        }
+      }
+    }
   }
 }

@@ -110,6 +110,8 @@ public class Model {
             for (Part<Model> part : parts){
                 part.update();
             }
+
+            if(loopedRotation) rotate();
         }
     }
 

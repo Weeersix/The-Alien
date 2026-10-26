@@ -114,7 +114,11 @@ public class WorldObject {
                                 part.modelSize,
                                 part.textureSize
                         )
-                                .setPosition(part.position)
+                                .setPosition(new Vector3(
+                                        position.x + part.position.x,
+                                        position.y + part.position.y,
+                                        position.z + part.position.z
+                                ))
                                 .setRotation(part.axis, part.angle, part.loopedRotation)
                                 .setRotation(part.axis, part.minAngle, part.maxAngle, part.rotationSpeed)
                 );
