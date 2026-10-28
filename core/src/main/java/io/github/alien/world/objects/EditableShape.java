@@ -3,7 +3,6 @@ package io.github.alien.world.objects;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Null;
-import io.github.alien.Constants;
 import io.github.alien.graphics.g3d.models.Model;
 import io.github.alien.graphics.g3d.models.ModelLoader;
 import io.github.alien.graphics.g3d.models.Part;
@@ -90,7 +89,9 @@ public class EditableShape extends WorldObject {
                         this,
                         builder,
                         loader.model.get(i),
-                        rect
+                        rect,
+                        loader.axes.get(i),
+                        loader.partRotations.get(i)
                 ));
             }
 

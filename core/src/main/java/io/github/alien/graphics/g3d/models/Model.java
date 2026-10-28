@@ -39,31 +39,31 @@ public class Model {
     public ModelLoader loader;
     public ModelInstance model;
 
-    public Model(String name, Vector3 position, float modelSize, int textureSize){
+    public Model(String id, Vector3 position, float modelSize, int textureSize){
         this.modelSize = modelSize;
         this.textureSize = textureSize;
 
-        load(name, position);
+        load(id, position);
     }
 
-    protected void load(String name, Vector3 position) {
+    protected void load(String id, Vector3 position) {
         loader = new ModelLoader();
         builder.begin();
 
-        this.name = name;
+        this.name = id;
         this.position = position;
 
-        loader.setName(name);
+        loader.setName(id);
         loader.setPostfix("-model");
         loader.setTextureSize(textureSize);
         loader.load();
 
         modelAtlas = loader.hasModelSprite ?
-                FileUtils.find(name + loader.postfix, ".png") :
-                FileUtils.find(name, ".png");
+                FileUtils.find(id + loader.postfix, ".png") :
+                FileUtils.find(id, ".png");
 
         for (int i = 0; i < loader.model.size(); i++) {
-            String id = modelAtlas + "-" + i;
+            String partId = modelAtlas + "-" + i;
             float[] rect = loader.typedPositions.isEmpty() ?
                     loader.customPositions.get(i) :
                     Part.Shape.getRect(
@@ -73,11 +73,13 @@ public class Model {
                     );
 
             this.parts.add(new Part<>(
-                    id,
+                    partId,
                     this,
                     builder,
                     loader.model.get(i),
-                    rect
+                    rect,
+                    loader.axes.get(i),
+                    loader.partRotations.get(i)
             ));
         }
 

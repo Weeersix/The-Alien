@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.SerializationException;
-import io.github.alien.Constants;
 import io.github.alien.graphics.g3d.models.Model;
 import io.github.alien.graphics.g3d.models.ModelLoader;
 import io.github.alien.graphics.g3d.models.Part;
@@ -130,6 +129,7 @@ public class SolidShape extends WorldObject{
                 String id;
                 float[] rect;
 
+
                 if(i >= 6) {
                     rect = loader.typedPositions.isEmpty() ?
                             loader.customPositions.get(i) :
@@ -150,7 +150,9 @@ public class SolidShape extends WorldObject{
                         this,
                         builder,
                         loader.model.get(i),
-                        rect
+                        rect,
+                        loader.axes.get(i),
+                        loader.partRotations.get(i)
                 ));
             }
 
@@ -224,28 +226,54 @@ public class SolidShape extends WorldObject{
                     JsonValue partsData = FileUtils.readValue(newName, "parts");
                     String[] coord = new String[partsData.size];
 
+//                    System.out.println(name + ", " + newName + ", " + fileName);
                     for (int i = 0; i < 6; i++) {
                         model.add(new TextureRegion[]{modelMap[0][i]});
+                        zeroRotation();
                     }
 
                     for (int i = 0; i < partsData.size; i++) {
                         JsonValue part = partsData.get(i);
 
-                        if (part.size <= 6) {
+                        if (part.size < 13) {
                             int x = 0, y = 0, z = 0;
+
+                            zeroRotation();
 
                             for (int j = 3; j < part.size; j++) {
                                 coord[i] = part.getString(j);
 
-                                switch (coord[i].replaceAll("-\\d.*", "")) {
-                                    case "X": x = Integer.parseInt(coord[i].replaceAll("X-", "")); break;
-                                    case "Y": y = Integer.parseInt(coord[i].replaceAll("Y-", "")); break;
-                                    case "Z": z = Integer.parseInt(coord[i].replaceAll("Z-", "")); break;
+                                if(!coord[i].contains("ROT_")) {
+                                    switch (coord[i].replaceAll("-\\d.*", "")) {
+                                        case "X": x = Integer.parseInt(coord[i].replaceAll("X-", "")); break;
+                                        case "Y": y = Integer.parseInt(coord[i].replaceAll("Y-", "")); break;
+                                        case "Z": z = Integer.parseInt(coord[i].replaceAll("Z-", "")); break;
+                                    }
+                                } else {
+                                    String AXISnANGLE = coord[i].replaceAll("ROT_", "");
+
+                                    switch (String.valueOf(AXISnANGLE.toCharArray()[0])) {
+                                        case "X":{
+                                            axes.set(i + 6, new Vector3(1, 0, 0));
+                                            partRotations.set(i + 6, Float.parseFloat(AXISnANGLE.replaceAll("X-", "")));
+                                            break;
+                                        }
+                                        case "Y": {
+                                            axes.set(i + 6, new Vector3(0, 1, 0));
+                                            partRotations.set(i + 6, Float.parseFloat(AXISnANGLE.replaceAll("Y-", "")));
+                                            break;
+                                        }
+                                        case "Z": {
+                                            axes.set(i + 6, new Vector3(0, 0, 1));
+                                            partRotations.set(i + 6, Float.parseFloat(AXISnANGLE.replaceAll("Z-", "")));
+                                            break;
+                                        }
+                                    }
                                 }
                             }
 
                             if (part.get(2) != null) {
-                                partPositionType.add(part.getString(2));
+                                partPositionType.add(part.get(0).isArray() ? part.getString(1) : part.getString(2));
                             } else System.out.println("Set the position type in the model part: " + this.name);
                             typedPositions.add(new Vector3(x, y, z));
 
@@ -257,6 +285,7 @@ public class SolidShape extends WorldObject{
                             customPositions.add(rect);
 
                             getPartData(part, "CUSTOM");
+                            zeroRotation();
                         }
                     }
                 } catch (SerializationException e) {
@@ -267,10 +296,12 @@ public class SolidShape extends WorldObject{
                     if (!hasModelSprite) {
                         for (int i = 0; i < 6; i++) {
                             model.add(i, new TextureRegion[]{texture});
+                            zeroRotation();
                         }
                     } else {
                         for (int i = 0; i < 6; i++) {
                             model.add(new TextureRegion[]{modelMap[0][i]});
+                            zeroRotation();
                         }
                     }
                 }

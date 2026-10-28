@@ -16,12 +16,13 @@ public class ModelLoader {
     protected TextureRegion[][] modelMap;
     public boolean hasModelSprite;
 
+    public List<Float> partRotations = new ArrayList<>();
+    public List<Vector3> axes = new ArrayList<>();
     public List<String> partPositionType = new ArrayList<>();
     public List<Vector3> typedPositions = new ArrayList<>();
     public List<float[]> customPositions = new ArrayList<>();
 
     public Map<String, List<TextureRegion[]>> parts = new HashMap<>();
-    public List<float[]> animatedPartsCoord = new ArrayList<>();
 
     public List<TextureRegion[]> model = new ArrayList<>();
 
@@ -61,16 +62,40 @@ public class ModelLoader {
             for (int i = 0; i < partsData.size; i++) {
                 JsonValue part = partsData.get(i);
 
-                if (part.size <= 6) {
+                if (part.size < 13) {
                     int x = 0, y = 0, z = 0;
+
+                    if(part.size > 6) zeroRotation();
 
                     for (int j = 3; j < part.size; j++) {
                         coord[i] = part.getString(j);
 
-                        switch (coord[i].replaceAll("-\\d.*", "")) {
-                            case "X": x = Integer.parseInt(coord[i].replaceAll("X-", "")); break;
-                            case "Y": y = Integer.parseInt(coord[i].replaceAll("Y-", "")); break;
-                            case "Z": z = Integer.parseInt(coord[i].replaceAll("Z-", "")); break;
+                        if(!coord[i].contains("ROT_")) {
+                            switch (coord[i].replaceAll("-\\d.*", "")) {
+                                case "X": x = Integer.parseInt(coord[i].replaceAll("X-", "")); break;
+                                case "Y": y = Integer.parseInt(coord[i].replaceAll("Y-", "")); break;
+                                case "Z": z = Integer.parseInt(coord[i].replaceAll("Z-", "")); break;
+                            }
+                        } else {
+                            String AXISnANGLE = coord[i].replaceAll("ROT_", "");
+
+                            switch (String.valueOf(AXISnANGLE.toCharArray()[0])) {
+                                case "X":{
+                                    axes.set(i, new Vector3(1, 0, 0));
+                                    partRotations.set(i, Float.parseFloat(AXISnANGLE.replaceAll("X-", "")));
+                                    break;
+                                }
+                                case "Y": {
+                                    axes.set(i, new Vector3(0, 1, 0));
+                                    partRotations.set(i, Float.parseFloat(AXISnANGLE.replaceAll("Y-", "")));
+                                    break;
+                                }
+                                case "Z": {
+                                    axes.set(i, new Vector3(0, 0, 1));
+                                    partRotations.set(i, Float.parseFloat(AXISnANGLE.replaceAll("Z-", "")));
+                                    break;
+                                }
+                            }
                         }
                     }
 
@@ -87,6 +112,7 @@ public class ModelLoader {
                     customPositions.add(rect);
 
                     getPartData(part, "CUSTOM");
+                    zeroRotation();
                 }
             }
         } catch (SerializationException e) {
@@ -103,13 +129,16 @@ public class ModelLoader {
         } else {
             for (int i = 0; i < texturesCount / 2; i++) {
                 partData[i] = modelMap[part.get(0).getInt(i * 2)][part.get(0).getInt(i * 2 + 1)];
-
-                animatedPartsCoord.add(new float[]{part.get(0).getInt(i * 2), part.get(0).getInt(i * 2 + 1)});
             }
         }
 
         model.add(partData);
         parts.get(partType).add(partData);
+    }
+
+    protected void zeroRotation(){
+        axes.add(new Vector3(0,0, 0));
+        partRotations.add(0f);
     }
 
     public String getModelAtlas(){

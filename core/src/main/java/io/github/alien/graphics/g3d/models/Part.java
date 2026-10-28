@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import io.github.alien.Constants;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +28,7 @@ public class Part<T extends Model> {
 
     private static final Map<TextureRegion[], TextureRegion[]> regionsCache = new HashMap<>();
 
-    public Part(String id, T parent, ModelBuilder builder, TextureRegion[] texture, float[] rect){
+    public Part(String id, T parent, ModelBuilder builder, TextureRegion[] texture, float[] rect, Vector3 axis, float angle){
         this.id = id;
         this.parent = parent;
         this.rect = rect;
@@ -48,11 +49,13 @@ public class Part<T extends Model> {
                 this.attribute,
                 this.material
         );
-        if(texture.length > 1) {
+
+        if (texture.length > 1) {
             mpb.setUVRange(0f, 0f, 1f, 1f);
         } else {
             mpb.setUVRange(texture[0]);
         }
+
         mpb.rect(
                 this.rect[0], this.rect[ 1], this.rect[ 2],
                 this.rect[3], this.rect[ 4], this.rect[ 5],
@@ -60,6 +63,8 @@ public class Part<T extends Model> {
                 this.rect[9], this.rect[10], this.rect[11],
                 0, 0, 0
         );
+
+        node.rotation.set(axis, angle);
     }
 
     public String getId(){
@@ -77,7 +82,7 @@ public class Part<T extends Model> {
     }
 
     private float stateTime = 0;
-    private int currentFrameCount = 1;
+    private int currentFrameCount = 0;
     private boolean started = false;
 
     public void update(){
@@ -87,7 +92,6 @@ public class Part<T extends Model> {
             currentFrameCount = (currentFrameCount + 1) % texture.length;
 
             ((TextureAttribute) parent.model.getNode(id).parts.get(0).material.get(TextureAttribute.Diffuse)).set(texture[currentFrameCount]);
-
             stateTime = 0;
         }
 

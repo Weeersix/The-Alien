@@ -89,11 +89,10 @@ public class Loads {
             for (int i = 0; i < object.size; i++) {
                 JsonValue param = object.get(i);
 
-                switch (param.name) {
-                    case "model-size": properties.put("model-size", object.getFloat(i));break;
-                    case "texture-size": properties.put("texture-size", object.getInt(i));break;
-                    case "variations-count": properties.put("variations-count", object.getInt(i));break;
-                }
+                properties.put("model-size", object.has("model-size") ? object.getFloat("model-size") : 1f);
+                properties.put("texture-size", object.has("texture-size") ? object.getInt("texture-size") : 16);
+                properties.put("variations-count", object.has("variations-count") ? object.getInt("variations-count") : -1);
+
                 if (!param.name.equals("model-size") &&
                         !param.name.equals("texture-size") &&
                         !param.name.equals("variations-count") &&
@@ -142,12 +141,6 @@ public class Loads {
                                 System.out.println("Unknown value type");
                         }
                     }
-                }
-
-                if(properties.size() < 3) {
-                    if (!properties.containsKey("model-size")) properties.put("model-size", 1f);
-                    if (!properties.containsKey("texture-size")) properties.put("texture-size", 16);
-                    if (!properties.containsKey("variations-count")) properties.put("variations-count", -1);
                 }
             }
         } else {
